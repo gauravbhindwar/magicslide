@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { MessageSquare, ArrowLeft, Download, Trash2, Sparkles } from 'lucide-react';
 import ChatHistory from '@/components/ChatHistory';
@@ -12,6 +12,9 @@ import { HybridStorage } from '@/lib/hybridStorage';
 import { initializeRedis } from '@/lib/redis';
 import { downloadPowerPoint } from '../../lib/pptxGeneratorBrowser';
 import { storageUtils } from '@/lib/secureStorage';
+
+// Force dynamic rendering to avoid SSR issues
+export const dynamic = 'force-dynamic';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -93,7 +96,7 @@ export default function ChatPage() {
       sessionStorage.removeItem('templateTitle');
       handleSendMessage(templatePrompt);
     }
-  }, []);
+  }, [handleSendMessage]);
 
   // Save chat history to hybrid storage whenever messages change
   useEffect(() => {
@@ -122,7 +125,7 @@ export default function ChatPage() {
     }
   }, [messages, currentCustomization, currentSlideData]);
 
-  const handleSendMessage = async (message, customization = null) => {
+  const handleSendMessage = React.useCallback(async (message, customization = null) => {
     // Store customization for context
     if (customization) {
       setCurrentCustomization(customization);
@@ -224,7 +227,7 @@ export default function ChatPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentSlideData, setCurrentCustomization, setMessages, setIsLoading, setCurrentSlideData]);
 
   const handleDownload = async () => {
     if (!currentSlideData || !currentSlideData.slides || currentSlideData.slides.length === 0) {

@@ -27,19 +27,19 @@ export default function ChatHistory({ messages }) {
               MagicSlide AI
             </h1>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Create stunning presentations with AI. Just describe what you want, and I'll generate professional slides instantly.
+              Create stunning presentations with AI. Just describe what you want, and I&apos;ll generate professional slides instantly.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
             <div className="bg-white p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
               <div className="text-2xl mb-2">🚀</div>
               <div className="font-medium text-gray-900 mb-1">Quick Start</div>
-              <div className="text-sm text-gray-600">"Create a business pitch for my startup"</div>
+              <div className="text-sm text-gray-600">&quot;Create a business pitch for my startup&quot;</div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
               <div className="text-2xl mb-2">📊</div>
               <div className="font-medium text-gray-900 mb-1">Professional</div>
-              <div className="text-sm text-gray-600">"Make a quarterly report presentation"</div>
+              <div className="text-sm text-gray-600">&quot;Make a quarterly report presentation&quot;</div>
             </div>
           </div>
         </div>

@@ -53,7 +53,7 @@ export default function PresentationPreview({ slideData, onDownload, onPreview }
                       className="w-6 h-4 object-cover rounded border border-gray-200 mr-2"
                       onError={(e) => {
                         e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'inline';
+                        if (e.target.nextSibling) e.target.nextSibling.style.display = 'inline';
                       }}
                     />
                     <span className="text-xs text-purple-600 hidden">🖼️</span>

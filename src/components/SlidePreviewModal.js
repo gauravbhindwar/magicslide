@@ -4,25 +4,24 @@ import React from 'react';
 import { X, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 
 export default function SlidePreviewModal({ slideData, currentSlide = 0, isOpen, onClose, onDownload, onSlideChange }) {
-  if (!isOpen || !slideData) return null;
+  // All hooks must be defined before early returns
+  const slide = slideData?.slides?.[currentSlide];
+  const totalSlides = slideData?.slides?.length || 0;
 
-  const slide = slideData.slides[currentSlide];
-  const totalSlides = slideData.slides.length;
-
-  const nextSlide = () => {
+  const nextSlide = React.useCallback(() => {
     if (currentSlide < totalSlides - 1 && onSlideChange) {
       onSlideChange(currentSlide + 1);
     }
-  };
+  }, [currentSlide, totalSlides, onSlideChange]);
 
-  const prevSlide = () => {
+  const prevSlide = React.useCallback(() => {
     if (currentSlide > 0 && onSlideChange) {
       onSlideChange(currentSlide - 1);
     }
-  };
+  }, [currentSlide, onSlideChange]);
 
   // Keyboard navigation
-  const handleKeyDown = (e) => {
+  const handleKeyDown = React.useCallback((e) => {
     if (e.key === 'ArrowLeft') {
       prevSlide();
     } else if (e.key === 'ArrowRight') {
@@ -30,7 +29,7 @@ export default function SlidePreviewModal({ slideData, currentSlide = 0, isOpen,
     } else if (e.key === 'Escape') {
       onClose();
     }
-  };
+  }, [prevSlide, nextSlide, onClose]);
 
   // Add keyboard event listener
   React.useEffect(() => {
@@ -38,7 +37,10 @@ export default function SlidePreviewModal({ slideData, currentSlide = 0, isOpen,
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isOpen, currentSlide]);
+  }, [isOpen, handleKeyDown]);
+
+  // Early return after all hooks
+  if (!isOpen || !slideData) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -127,7 +129,7 @@ export default function SlidePreviewModal({ slideData, currentSlide = 0, isOpen,
                       className="max-w-full max-h-48 mx-auto rounded-xl shadow-md object-cover border border-gray-200"
                       onError={(e) => {
                         e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
+                        if (e.target.nextSibling) e.target.nextSibling.style.display = 'block';
                       }}
                     />
                     <div 
