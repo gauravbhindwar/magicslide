@@ -82,49 +82,7 @@ export default function ChatPage() {
     loadMessages();
   }, []);
 
-  // Check for quick start prompt from welcome page or template prompt from prebuilt page
-  useEffect(() => {
-    const quickStartPrompt = sessionStorage.getItem('quickStartPrompt');
-    const templatePrompt = sessionStorage.getItem('templatePrompt');
-    const templateTitle = sessionStorage.getItem('templateTitle');
-    
-    if (quickStartPrompt) {
-      sessionStorage.removeItem('quickStartPrompt');
-      handleSendMessage(quickStartPrompt);
-    } else if (templatePrompt) {
-      sessionStorage.removeItem('templatePrompt');
-      sessionStorage.removeItem('templateTitle');
-      handleSendMessage(templatePrompt);
-    }
-  }, [handleSendMessage]);
-
-  // Save chat history to hybrid storage whenever messages change
-  useEffect(() => {
-    if (messages.length > 0) {
-      try {
-        HybridStorage.saveMessages(messages);
-        
-        // Also save user context to localStorage
-        const userContext = {
-          lastUpdate: Date.now(),
-          totalMessages: messages.length,
-          lastCustomization: currentCustomization,
-          currentPresentationTitle: currentSlideData?.title,
-          slideCount: currentSlideData?.slides?.length,
-          userPreferences: {
-            preferredColorScheme: currentCustomization?.colorScheme,
-            preferredTone: currentCustomization?.tone,
-            preferredAudience: currentCustomization?.targetAudience,
-            includeImages: currentCustomization?.includeImages
-          }
-        };
-        localStorage.setItem('magicSlideUserContext', JSON.stringify(userContext));
-      } catch (error) {
-        console.error('Error saving chat history:', error);
-      }
-    }
-  }, [messages, currentCustomization, currentSlideData]);
-
+  // Define handleSendMessage before it's used in useEffect
   const handleSendMessage = React.useCallback(async (message, customization = null) => {
     // Store customization for context
     if (customization) {
@@ -228,6 +186,49 @@ export default function ChatPage() {
       setIsLoading(false);
     }
   }, [currentSlideData, setCurrentCustomization, setMessages, setIsLoading, setCurrentSlideData]);
+
+  // Check for quick start prompt from welcome page or template prompt from prebuilt page
+  useEffect(() => {
+    const quickStartPrompt = sessionStorage.getItem('quickStartPrompt');
+    const templatePrompt = sessionStorage.getItem('templatePrompt');
+    const templateTitle = sessionStorage.getItem('templateTitle');
+    
+    if (quickStartPrompt) {
+      sessionStorage.removeItem('quickStartPrompt');
+      handleSendMessage(quickStartPrompt);
+    } else if (templatePrompt) {
+      sessionStorage.removeItem('templatePrompt');
+      sessionStorage.removeItem('templateTitle');
+      handleSendMessage(templatePrompt);
+    }
+  }, [handleSendMessage]);
+
+  // Save chat history to hybrid storage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        HybridStorage.saveMessages(messages);
+        
+        // Also save user context to localStorage
+        const userContext = {
+          lastUpdate: Date.now(),
+          totalMessages: messages.length,
+          lastCustomization: currentCustomization,
+          currentPresentationTitle: currentSlideData?.title,
+          slideCount: currentSlideData?.slides?.length,
+          userPreferences: {
+            preferredColorScheme: currentCustomization?.colorScheme,
+            preferredTone: currentCustomization?.tone,
+            preferredAudience: currentCustomization?.targetAudience,
+            includeImages: currentCustomization?.includeImages
+          }
+        };
+        localStorage.setItem('magicSlideUserContext', JSON.stringify(userContext));
+      } catch (error) {
+        console.error('Error saving chat history:', error);
+      }
+    }
+  }, [messages, currentCustomization, currentSlideData]);
 
   const handleDownload = async () => {
     if (!currentSlideData || !currentSlideData.slides || currentSlideData.slides.length === 0) {
@@ -366,7 +367,7 @@ export default function ChatPage() {
           {/* Chat Content */}
           <div className="flex-1 flex flex-col">
             <div className="flex-1 overflow-y-auto">
-              <ChatHistory messages={messages} />
+              <ChatHistory messages={messages} isLoading={isLoading} />
             </div>
             <div className="border-t border-gray-200 bg-white">
               <ChatInput

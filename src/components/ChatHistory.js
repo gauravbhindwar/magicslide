@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import ChatMessage from './ChatMessage';
-import { FileText } from 'lucide-react';
+import LoadingIndicator from './LoadingIndicator';
+import { FileText, Bot } from 'lucide-react';
 
-export default function ChatHistory({ messages }) {
+export default function ChatHistory({ messages, isLoading }) {
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -56,8 +57,28 @@ export default function ChatHistory({ messages }) {
             message={msg.content}
             isBot={msg.isBot}
             slideData={msg.slideData}
+            isLoading={false}
           />
         ))}
+        
+        {/* Show loading indicator when generating slides */}
+        {isLoading && (
+          <div className="flex items-start gap-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-sm flex-shrink-0">
+              <Bot className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="mb-2">
+                <span className="text-sm font-medium text-gray-900">
+                  MagicSlide AI
+                </span>
+              </div>
+              <div className="mt-4">
+                <LoadingIndicator isVisible={true} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <div ref={messagesEndRef} />
     </div>

@@ -59,16 +59,23 @@ class SecureStorage {
 
   // Decrypt the stored data
   decrypt(encryptedData) {
+    // Return null for null, undefined, or empty string inputs
+    if (!encryptedData || encryptedData === '') {
+      return null;
+    }
+
     if (!this.isClient || !this.encryptionKey) {
       try {
         return JSON.parse(encryptedData); // Try parsing as plain JSON
-      } catch {
+      } catch (error) {
+        console.warn('Failed to parse data as plain JSON:', error.message);
         return null;
       }
     }
     
     try {
-      const encrypted = atob(encryptedData); // Base64 decode
+      // First try to decode as base64
+      const encrypted = atob(encryptedData);
       const key = this.encryptionKey;
       let decrypted = '';
       
@@ -80,11 +87,21 @@ class SecureStorage {
       
       return JSON.parse(decrypted);
     } catch (error) {
-      console.error('Error decrypting data:', error);
+      console.warn('Error decrypting data, trying fallback methods:', error.message);
+      
       // Try parsing as plain JSON fallback
       try {
         return JSON.parse(encryptedData);
-      } catch {
+      } catch (jsonError) {
+        console.warn('Failed to parse as plain JSON:', jsonError.message);
+        
+        // If all else fails, check if it's a serialized empty array or object
+        if (encryptedData === '[]' || encryptedData === '{}') {
+          return JSON.parse(encryptedData);
+        }
+        
+        // Last resort: return empty array for messages
+        console.warn('All decryption attempts failed, returning null');
         return null;
       }
     }
@@ -147,17 +164,36 @@ class SecureStorage {
       if (!encrypted) {
         // Try fallback storage
         const fallback = localStorage.getItem(`${this.storageKey}-fallback`);
-        return fallback ? JSON.parse(fallback) : [];
+        if (fallback) {
+          try {
+            const parsed = JSON.parse(fallback);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (error) {
+            console.warn('Failed to parse fallback data:', error.message);
+            return [];
+          }
+        }
+        return [];
       }
 
       const messages = this.decrypt(encrypted);
       if (!messages) {
         // If decryption fails, try fallback
         const fallback = localStorage.getItem(`${this.storageKey}-fallback`);
-        return fallback ? JSON.parse(fallback) : [];
+        if (fallback) {
+          try {
+            const parsed = JSON.parse(fallback);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch (error) {
+            console.warn('Failed to parse fallback data:', error.message);
+            return [];
+          }
+        }
+        return [];
       }
 
-      return messages;
+      // Ensure messages is an array
+      return Array.isArray(messages) ? messages : [];
     } catch (error) {
       console.error('Error loading chat history:', error);
       return [];
@@ -173,8 +209,26 @@ class SecureStorage {
       localStorage.removeItem(`${this.storageKey}-meta`);
       localStorage.removeItem(`${this.storageKey}-fallback`);
       sessionStorage.removeItem('magicslide-session-key');
+      console.log('Cleared all chat history and encryption keys');
     } catch (error) {
       console.error('Error clearing chat history:', error);
+    }
+  }
+
+  // Clean corrupted localStorage data
+  cleanCorruptedData() {
+    if (!this.isClient) return;
+    
+    try {
+      // Try to load and validate current data
+      const testLoad = this.loadMessages();
+      if (!Array.isArray(testLoad)) {
+        console.warn('Corrupted data detected, clearing storage');
+        this.clearHistory();
+      }
+    } catch (error) {
+      console.warn('Storage corruption detected, clearing all data:', error);
+      this.clearHistory();
     }
   }
 

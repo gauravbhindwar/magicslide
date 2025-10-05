@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sparkles, Zap, Palette, Image, BarChart3, Users, Clock, Download } from 'lucide-react';
 
 const QUICK_TEMPLATES = [
@@ -49,6 +50,7 @@ const FEATURES = [
 
 export default function WelcomeSection({ onQuickStart, onCustomCreate }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const router = useRouter();
 
   const handleQuickTemplate = (template) => {
     onQuickStart(template.prompt);
@@ -84,10 +86,10 @@ export default function WelcomeSection({ onQuickStart, onCustomCreate }) {
                 Create Custom Presentation
               </button>
               <button
-                onClick={() => document.getElementById('quick-templates').scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => router.push('/chat')}
                 className="border-2 border-purple-600 text-purple-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-purple-50 transition-all duration-200"
               >
-                Browse Templates
+                Chat
               </button>
             </div>
           </div>

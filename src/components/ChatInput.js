@@ -31,10 +31,14 @@ return (
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Describe your presentation or ask to edit existing slides..."
+              placeholder={isLoading ? "Creating your presentation..." : "Describe your presentation or ask to edit existing slides..."}
               rows={1}
-              disabled={disabled}
-              className="w-full resize-none rounded-2xl border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-900 placeholder:text-gray-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed text-base min-h-[48px] max-h-32"
+              disabled={disabled || isLoading}
+              className={`w-full resize-none rounded-2xl border bg-white px-4 py-3 pr-12 text-gray-900 placeholder:text-gray-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-base min-h-[48px] max-h-32 transition-all ${
+                isLoading || disabled 
+                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed placeholder:text-gray-400' 
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
               style={{ lineHeight: '24px' }}
             />
             <button
@@ -52,9 +56,18 @@ return (
           </div>
         </div>
       </form>
-      <div className="mt-2 text-xs text-gray-500 text-center">
-        <span className="font-medium">Enter</span> to send • <span className="font-medium">Shift + Enter</span> for new line
-      </div>
+      {isLoading ? (
+        <div className="mt-2 text-xs text-center">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 bg-purple-50 text-purple-700 rounded-full border border-purple-200">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            <span className="font-medium">AI is generating your slides...</span>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-2 text-xs text-gray-500 text-center">
+          <span className="font-medium">Enter</span> to send • <span className="font-medium">Shift + Enter</span> for new line
+        </div>
+      )}
     </div>
   </div>
 );
